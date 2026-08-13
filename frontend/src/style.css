@@ -28,6 +28,27 @@ h2 {
   border-radius: 5px;
 }
 
+.navbar {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.navbar a,
+.link-button,
+.edit-link {
+  display: inline-block;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #2563eb;
+  color: white;
+  text-decoration: none;
+}
+
+.login-note {
+  color: #555;
+}
+
 .summary {
   display: flex;
   gap: 20px;
@@ -65,6 +86,15 @@ button {
 
 .link-button {
   background-color: #555;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-link {
+  background-color: #16a34a;
 }
 
 table {

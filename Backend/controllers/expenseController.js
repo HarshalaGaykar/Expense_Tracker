@@ -4,15 +4,25 @@ import Expense from "../models/Expense.js";
 const createExpense = async (req, res) => {
     try {
         const {
+            userId,
             expenseName,
             amount,
             date,
             description
         } = req.body;
 
+        // Validation 4: Data Type and Boundary Check
+        const expenseAmount = Number(amount);
+        if (isNaN(expenseAmount) || expenseAmount <= 0) {
+            return res.status(400).json({
+                message: "Expense amount must be a positive number greater than 0"
+            });
+        }
+
         const expense = new Expense({
+            userId,
             expenseName,
-            amount,
+            amount: expenseAmount,
             date,
             description
         });
@@ -35,7 +45,13 @@ const createExpense = async (req, res) => {
 
 const getExpenses = async (req, res) => {
     try {
-        const expenses = await Expense.find();
+        const { userId } = req.query;
+        let query = {};
+        if (userId) {
+            query.userId = userId;
+        }
+        
+        const expenses = await Expense.find(query);
 
         res.status(200).json(expenses);
 

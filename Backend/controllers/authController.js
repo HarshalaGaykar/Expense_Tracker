@@ -1,13 +1,42 @@
 import User from "../models/User.js";
+import bcrypt from "bcrypt";
 
 const registerUser = async (req, res) => {
     try {
-        const {
+        let {
             username,
             email,
             password,
             fullName
         } = req.body;
+
+        // Validation 1: Empty Space Checking
+        username = username?.trim();
+        fullName = fullName?.trim();
+        email = email?.trim();
+
+        if (!username || !fullName || !email || !password) {
+            return res.status(400).json({
+                message: "All fields are required and cannot be empty spaces"
+            });
+        }
+
+        // Validation 2: Email Format Checking
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                message: "Please enter a valid email address"
+            });
+        }
+
+        // Validation 3: Password Strength Rules (min 8 chars, needs number & letter)
+        const hasLetters = /[a-zA-Z]/.test(password);
+        const hasNumbers = /\d/.test(password);
+        if (password.length < 8 || !hasLetters || !hasNumbers) {
+            return res.status(400).json({
+                message: "Password must be at least 8 characters long and contain both letters and numbers"
+            });
+        }
 
         const existingUser = await User.findOne({ email });
 
@@ -17,10 +46,14 @@ const registerUser = async (req, res) => {
             });
         }
 
+        // Hash the password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
         const user = new User({
             username,
             email,
-            password,
+            password: hashedPassword,
             fullName
         });
 
@@ -47,12 +80,19 @@ const loginUser = async (req, res) => {
             password
         } = req.body;
 
-        const user = await User.findOne({
-            email,
-            password
-        });
+        // Find user by email only
+        const user = await User.findOne({ email });
 
         if (!user) {
+            return res.status(401).json({
+                message: "Invalid email or password"
+            });
+        }
+
+        // Compare hashed password
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
             return res.status(401).json({
                 message: "Invalid email or password"
             });

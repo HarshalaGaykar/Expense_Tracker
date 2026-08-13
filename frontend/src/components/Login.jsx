@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-function Login({ setUser, setMessage, setShowRegister }) {
+function Login({ setUser, setMessage }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const loginUser = async (event) => {
     event.preventDefault();
@@ -25,6 +27,7 @@ function Login({ setUser, setMessage, setShowRegister }) {
 
       if (response.ok) {
         setUser(data.user);
+        navigate("/");
       }
 
       setMessage(data.message);
@@ -59,9 +62,9 @@ function Login({ setUser, setMessage, setShowRegister }) {
         <button type="submit">Login</button>
       </form>
 
-      <button className="link-button" onClick={() => setShowRegister(true)}>
+      <Link className="link-button" to="/register">
         New user? Register
-      </button>
+      </Link>
     </div>
   );
 }

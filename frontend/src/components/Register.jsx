@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-function Register({ setMessage, setShowRegister }) {
+function Register({ setMessage }) {
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const registerUser = async (event) => {
     event.preventDefault();
@@ -28,11 +30,11 @@ function Register({ setMessage, setShowRegister }) {
       const data = await response.json();
 
       setMessage(data.message);
-      setShowRegister(false);
       setFullName("");
       setUsername("");
       setEmail("");
       setPassword("");
+      navigate("/login");
     } catch (error) {
       setMessage("Registration failed");
     }
@@ -78,9 +80,9 @@ function Register({ setMessage, setShowRegister }) {
         <button type="submit">Register</button>
       </form>
 
-      <button className="link-button" onClick={() => setShowRegister(false)}>
+      <Link className="link-button" to="/login">
         Already have account? Login
-      </button>
+      </Link>
     </div>
   );
 }

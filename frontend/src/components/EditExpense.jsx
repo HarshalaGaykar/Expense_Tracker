@@ -1,18 +1,37 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
-function ExpenseForm({ setMessage, getAllExpenses, user }) {
+function EditExpense({ setMessage, getAllExpenses }) {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   const [expenseName, setExpenseName] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
-  const navigate = useNavigate();
 
-  const addExpense = async (event) => {
+  useEffect(() => {
+    getExpense();
+  }, [id]);
+
+  const getExpense = async () => {
+    try {
+      const response = await fetch(`/api/expenses/${id}`);
+      const data = await response.json();
+
+      setExpenseName(data.expenseName);
+      setAmount(data.amount);
+      setDate(data.date.slice(0, 10));
+      setDescription(data.description || "");
+    } catch (error) {
+      setMessage("Failed to load expense");
+    }
+  };
+
+  const updateExpense = async (event) => {
     event.preventDefault();
 
-    const newExpense = {
-      userId: user._id || user.id,
+    const updatedExpense = {
       expenseName,
       amount,
       date,
@@ -20,33 +39,29 @@ function ExpenseForm({ setMessage, getAllExpenses, user }) {
     };
 
     try {
-      const response = await fetch("/api/expenses", {
-        method: "POST",
+      const response = await fetch(`/api/expenses/${id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(newExpense)
+        body: JSON.stringify(updatedExpense)
       });
 
       const data = await response.json();
 
       setMessage(data.message);
-      setExpenseName("");
-      setAmount("");
-      setDate("");
-      setDescription("");
       getAllExpenses();
       navigate("/");
     } catch (error) {
-      setMessage("Failed to add expense");
+      setMessage("Failed to update expense");
     }
   };
 
   return (
     <div className="box">
-      <h2>Add Expense</h2>
+      <h2>Edit Expense</h2>
 
-      <form className="form" onSubmit={addExpense}>
+      <form className="form" onSubmit={updateExpense}>
         <input
           type="text"
           placeholder="Expense name"
@@ -77,10 +92,10 @@ function ExpenseForm({ setMessage, getAllExpenses, user }) {
           onChange={(event) => setDescription(event.target.value)}
         />
 
-        <button type="submit">Add Expense</button>
+        <button type="submit">Update Expense</button>
       </form>
     </div>
   );
 }
 
-export default ExpenseForm;
+export default EditExpense;

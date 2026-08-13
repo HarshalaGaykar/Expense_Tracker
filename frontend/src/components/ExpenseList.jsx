@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 function ExpenseList({ expenses, setMessage, getAllExpenses }) {
   const deleteExpense = async (id) => {
     try {
@@ -38,7 +40,10 @@ function ExpenseList({ expenses, setMessage, getAllExpenses }) {
                 <td>Rs. {expense.amount}</td>
                 <td>{new Date(expense.date).toLocaleDateString()}</td>
                 <td>{expense.description}</td>
-                <td>
+                <td className="table-actions">
+                  <Link className="edit-link" to={`/edit/${expense._id}`}>
+                    Edit
+                  </Link>
                   <button onClick={() => deleteExpense(expense._id)}>
                     Delete
                   </button>
